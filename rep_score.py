@@ -1,3 +1,4 @@
+import math
 import argparse
 import linecache
 from collections import Counter
@@ -158,19 +159,26 @@ def main():
     # Print the value according to the flags provided
     total_value = sum(repetition_scores)
 
+    # Calculate the brevity penalty
+    ref_length = sum([len(x) for x in ref_sentence_list])
+    pred_length = sum([len(x) for x in pred_sentence_list])
+    
+    if pred_length < ref_length:
+        bp = 1/(math.exp(1-(ref_length/pred_length)))
+    else:
+        bp = 1
+
     if args.normalize:
-
         normalize_constant = calculate_number_words_list(args.reference)
-
         if normalize_constant != 0:
-            normalized_value = 100*float(total_value)/normalize_constant
-            print("REP_SCORE: {}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, normalized_value))
+            normalized_value = bp*100*float(total_value)/normalize_constant
+            print("REP_SCORE: {}, BP: {:.3f}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, bp, normalized_value))
         else:
             print("The reference file is empty.")
             exit(0)
 
     else:
-        print("REP_SCORE: {}".format(total_value))
+        print("REP_SCORE: {}".format(bp*total_value))
 
 if __name__== "__main__":
 
