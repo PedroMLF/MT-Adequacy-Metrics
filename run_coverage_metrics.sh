@@ -1,5 +1,5 @@
 PRED=$1
-TEST_TGT=$2
+REF=$2
 SRC_REF_ALIGN=$3
 SRC_MT_ALIGN=$4
 
@@ -17,11 +17,13 @@ fi
 echo $(basename $PRED)
 
 python3 rep_score.py \
-        -r ${TEST_TGT} \
+        -r ${REF} \
         -p ${PRED} \
         --normalize
 
 python3 drop_score.py \
         --src_ref_align ${SRC_REF_ALIGN} \
-        --src_mt_align ${SRC_MT_ALIGN}
+        --src_mt_align ${SRC_MT_ALIGN} \
+        --ref_path ${REF} \
+        --cnd_path ${PRED}
 

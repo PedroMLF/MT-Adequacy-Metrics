@@ -43,8 +43,10 @@ do
 
     python3 drop_score.py \
             --src_ref_align ${ALIGNER_DATA}/src_ref.align \
-            --src_mt_align ${ALIGNER_DATA}/src_mt.align
-                           
+            --src_mt_align ${ALIGNER_DATA}/src_mt.align \
+            --ref_path ${TEST_TGT} \
+            --cnd_path ${file}
+                       
     echo
  
 done

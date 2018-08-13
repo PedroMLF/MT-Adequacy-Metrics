@@ -31,6 +31,8 @@ To obtain the DROP-score use the drop\_score.py script.
 ```
 >> python3 drop_score.py --src_ref_align <PATH>/src_ref.align
                          --src_mt_align <PATH>/src_mt.align
+                         --ref_path <PATH>/ref.txt
+                         --cnd_path <PATH>/cnd.txt
 ```
 
 Optional Flags:
