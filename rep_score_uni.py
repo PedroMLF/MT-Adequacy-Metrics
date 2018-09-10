@@ -1,7 +1,6 @@
 import math
 import argparse
 import linecache
-import numpy as np
 from collections import Counter
 
 ################################################################################################
@@ -118,8 +117,8 @@ def main():
 
     # Required arguments
     required = parser.add_argument_group("required arguments")
-    required.add_argument("-r", "--reference", nargs='+', required=True,
-                          help="Provide a list with the paths to the tokenized reference files")
+    required.add_argument("-r", "--reference", type=str, required=True,
+                          help="Provide the path to the tokenized reference file")
     required.add_argument("-p", "--predicted", type=str, required=True,
                           help="Provide the path to the tokenized obtained translation")
 
@@ -128,29 +127,26 @@ def main():
     assert args.n >= 1, "n must be strictly positive"
 
     # Create a list with all sentences for reference and prediction
-    ref_sentence_list = [ [line.split() for line in open(path, 'r')] for path in args.reference]
+    ref_sentence_list = [line.split() for line in open(args.reference, 'r')]
     pred_sentence_list = [line.split() for line in open(args.predicted, 'r')]
 
-    assert len(ref_sentence_list[0]) == len(pred_sentence_list), \
-                "Reference and predicted text files should have the same length"
+    assert len(ref_sentence_list) == len(pred_sentence_list), "Reference and predicted text files should have the same length"
 
     # Create list of n-grams
-    n_gram_ref_sentence_list = [create_ngram_sentence_list(ref, args.n) for ref in ref_sentence_list]
+    n_gram_ref_sentence_list = create_ngram_sentence_list(ref_sentence_list, args.n)
     n_gram_pred_sentence_list = create_ngram_sentence_list(pred_sentence_list, args.n)
 
     # Create lists with the counts of repetitions of the n-grams
-    n_gram_count_ref_sentence_list = [count_repetitions(ref, 0) for ref in n_gram_ref_sentence_list]
+    n_gram_count_ref_sentence_list = count_repetitions(n_gram_ref_sentence_list, 0)
     n_gram_count_pred_sentence_list = count_repetitions(n_gram_pred_sentence_list, 0)
 
     # Obtain the score for n-gram counts
-    all_n_gram_scores = [n_gram_score(r, n_gram_count_pred_sentence_list) for r in n_gram_count_ref_sentence_list]    
-    n_gram_scores = [min(x) for x in zip(*all_n_gram_scores)]
+    n_gram_scores = n_gram_score(n_gram_count_ref_sentence_list, n_gram_count_pred_sentence_list)
 
     # Obtain repetition score for consecutive words
     if args.n == 2:
         consec_scores = consecutive_words_score(n_gram_count_ref_sentence_list, n_gram_count_pred_sentence_list)
     else:
-        print("WARNING: Not working properly for multi reference")
         aux_n_gram_ref_sentence_list = create_ngram_sentence_list(ref_sentence_list, 2)
         aux_n_gram_pred_sentence_list = create_ngram_sentence_list(pred_sentence_list, 2)
         aux_n_gram_count_ref_sentence_list = count_repetitions(aux_n_gram_ref_sentence_list, 0)
