@@ -93,10 +93,12 @@ def calculate_final_scores(n_gram_scores, consecutive_scores, w1, w2):
     return [w1*score1 + w2*score2 for (score1, score2) in zip(n_gram_scores, consecutive_scores)]
 
 
-def calculate_number_words_list(file_path):
+def calculate_number_words(file_path):
     """ Returns the number of words in a given file """
-
-    return sum([len(line.strip('\n').split()) for line in open(file_path, 'r').readlines()])
+    nw = list()
+    for ref in file_path:
+        nw.append(sum([len(line.strip('\n').split()) for line in open(ref, 'r').readlines()]))
+    return max(nw)
 
 ################################################################################################
 ###                                     MAIN FUNCTION                                        ###
@@ -164,7 +166,8 @@ def main():
     total_value = sum(repetition_scores)
 
     # Calculate the brevity penalty
-    ref_length = sum([len(x) for x in ref_sentence_list])
+    #ref_length = sum([len(x) for x in ref_sentence_list])
+    ref_length = calculate_number_words(args.reference)
     pred_length = sum([len(x) for x in pred_sentence_list])
     
     if pred_length < ref_length:
@@ -174,7 +177,7 @@ def main():
 
     # Get the final score
     if args.normalize:
-        normalize_constant = calculate_number_words_list(args.reference)
+        normalize_constant = calculate_number_words(args.reference)
         if normalize_constant != 0:
             normalized_value = bp*100*float(total_value)/normalize_constant
             print("REP_SCORE: {}, BP: {:.3f}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, bp, normalized_value))

@@ -1,6 +1,5 @@
 import math
 import argparse
-from itertools import chain
 
 ##########################################################################################
 ###                                AUXILIARY FUNCTIONS                                ####
@@ -89,13 +88,6 @@ def calculate_score(src_ref_ixs, src_mt_ixs, lp, src_words, stopwords, filter_st
                                           lp*100*float(tot)/nr_src_ref_aligned_words))
 
 
-def calculate_number_words(file_path):
-    """ Returns the number of words in a given file """
-    nw = list()
-    for ref in file_path:
-        nw.append(sum([len(line.strip('\n').split()) for line in open(ref, 'r').readlines()]))
-    return max(nw)
-
 ##########################################################################################
 ###                                AUXILIARY FUNCTIONS                                ####
 ##########################################################################################
@@ -114,11 +106,11 @@ def main():
 
     # Required arguments
     required = parser.add_argument_group("required arguments")
-    required.add_argument("--src_ref_align", nargs='+', required=True,
+    required.add_argument("--src_ref_align", type=str, required=True,
                           help="Path to the source/reference alignments")
     required.add_argument("--src_mt_align", type=str, required=True,
                           help="Path to the source/prediction alignments")
-    required.add_argument("--ref_path", nargs='+', required=True,
+    required.add_argument("--ref_path", type=str, required=True,
                           help="Path to the reference translation")
     required.add_argument("--cnd_path", type=str, required=True,
                           help="Path to the candidate translation")
@@ -139,22 +131,17 @@ def main():
     REF_PATH = args.ref_path
     CND_PATH = args.cnd_path
 
-    # Source words that were aligned with some reference word (all_src_ref_ixs_aligned)
-    asria = [list_of_indeces(ref, 0) for ref in SRC_REF_PATH]
-    
-    # To deal with multiple references, make sentence by sentence union of
-    # the indexes of source words that have aligned with something.
-    src_ref_ixs_aligned = [sorted(list(set(chain.from_iterable(x))), key=lambda y: int(y)) for x in zip(*asria)]
+    # Source words that were aligned with some reference word
+    src_ref_ixs_aligned = list_of_indeces(SRC_REF_PATH, 0)
 
     # Source words that were aligned with some MT predicted word
     src_mt_ixs_aligned = list_of_indeces(SRC_MT_PATH, 0)
 
     # Calculate the length penalty
-    ref_sentence_list = [ [line.split() for line in open(ref, 'r')] for ref in REF_PATH]
+    ref_sentence_list = [line.split() for line in open(REF_PATH, 'r')]
     cnd_sentence_list = [line.split() for line in open(CND_PATH, 'r')] 
 
-    # Choose the reference with the largest number of words
-    ref_length = max([sum([len(x) for x in ref]) for ref in ref_sentence_list])
+    ref_length = sum([len(x) for x in ref_sentence_list])
     cnd_length = sum([len(x) for x in cnd_sentence_list]) 
 
     if cnd_length > ref_length:
