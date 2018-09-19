@@ -1,4 +1,5 @@
 import math
+import operator
 import argparse
 from itertools import chain
 
@@ -59,11 +60,15 @@ def calculate_score(src_ref_ixs, src_mt_ixs, lp, src_words, stopwords, filter_st
     - src_words        : list of lists with the source words
     - stopwords        : list with the stop words for the source language
     - filter_stopwords : boolean that indicates whether stopwords are dropped or not
+
+    Outputs:
+    - individual_scores: list with the individual scores
     """
 
     tot = 0
     nr_src_ref_aligned_words = 0
-    
+    individual_scores = list()   
+ 
     for (src_ref, src_mt, words) in zip(src_ref_ixs, src_mt_ixs, src_words):
         
         # Create list with the src words ixs that aligned with something
@@ -85,16 +90,25 @@ def calculate_score(src_ref_ixs, src_mt_ixs, lp, src_words, stopwords, filter_st
             tot += len(skipped_ixs)
             nr_src_ref_aligned_words += len(src_ref)
     
+        individual_scores.append(float(len(skipped_ixs))/len(src_ref))
+
     print("LP: {:.2f} DSW: {:.2f}".format(lp,
                                           lp*100*float(tot)/nr_src_ref_aligned_words))
 
+    return individual_scores
 
-def calculate_number_words(file_path):
-    """ Returns the number of words in a given file """
-    nw = list()
-    for ref in file_path:
-        nw.append(sum([len(line.strip('\n').split()) for line in open(ref, 'r').readlines()]))
-    return max(nw)
+def calculate_number_words(references, candidate):
+    """ Returns the number of words from the reference closest to the length of the prediction """
+    # Calculate the number of words for each reference file
+    nw_ref = list()
+    for ref in references:
+        nw_ref.append(sum([len(line.strip('\n').split()) for line in open(ref, 'r').readlines()]))
+    # Calculate the number of words in the candidate translation
+    nw_can = sum([len(line.strip('\n').split()) for line in open(candidate, 'r').readlines()])
+    # Return the reference length closest to the candidate
+    diff_list = [x-nw_can for x in nw_ref]
+    min_ix, min_v = min(enumerate(diff_list), key=operator.itemgetter(1))
+    return nw_ref[min_ix]
 
 ##########################################################################################
 ###                                AUXILIARY FUNCTIONS                                ####
@@ -111,6 +125,8 @@ def main():
                         help="Path to the stopwords file")
     parser.add_argument("--src_path", type=str,
                         help="Path to the test source language file")
+    parser.add_argument("--debug", action="store_true",
+                        help="Created a pdb trace at the end of the script")
 
     # Required arguments
     required = parser.add_argument_group("required arguments")
@@ -154,7 +170,10 @@ def main():
     cnd_sentence_list = [line.split() for line in open(CND_PATH, 'r')] 
 
     # Choose the reference with the largest number of words
-    ref_length = max([sum([len(x) for x in ref]) for ref in ref_sentence_list])
+    #ref_length = max([sum([len(x) for x in ref]) for ref in ref_sentence_list])
+    
+    # Choose the reference with the number of words closest to the value of the candidate
+    ref_length = calculate_number_words(REF_PATH, CND_PATH)    
     cnd_length = sum([len(x) for x in cnd_sentence_list]) 
 
     if cnd_length > ref_length:
@@ -172,15 +191,17 @@ def main():
         stopwords = [line.strip("\n") for line in open(STOPWORDS_PATH, 'r')]
 
         # Calculate the final score
-        calculate_score(src_ref_ixs_aligned, src_mt_ixs_aligned, lp,
-                        src_words, stopwords, args.filter_stopwords) 
+        ind_score = calculate_score(src_ref_ixs_aligned, src_mt_ixs_aligned, lp,
+                                    src_words, stopwords, args.filter_stopwords) 
 
     else:
         # Calculate the final score
         empty_src_words = [list() for entry in src_ref_ixs_aligned]
-        calculate_score(src_ref_ixs_aligned, src_mt_ixs_aligned, lp,
-                        empty_src_words, list(), args.filter_stopwords)
+        ind_score = calculate_score(src_ref_ixs_aligned, src_mt_ixs_aligned, lp,
+                                    empty_src_words, list(), args.filter_stopwords)
 
+    if args.debug:
+        import pdb; pdb.set_trace()
 
 if __name__ == "__main__":
 
