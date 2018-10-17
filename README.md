@@ -62,7 +62,7 @@ Notes:
 
 _**Obtain metric values for a single predictions**_:
 
-To obtain the values for a single prediction, use the script run\_metrics.sh
+To obtain the values for a single prediction, use the script run\_single.sh
 
 ```
 >> ./run_single.sh merged_prediction test_target src_ref_align src_mt_align
@@ -103,4 +103,5 @@ Notes:
 **References:**
 
 [1] - tba
+
 [2] - tba
