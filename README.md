@@ -1,9 +1,10 @@
 # MT-Adequacy-Metrics
 
 Adequacy issues may have different roots, such as:
-    - **Over-translations**, the same source word is translated multiple times
-    - **Under-translations**, some source words are erroneously unstranslated
-    - **Mistranslations**, when words are not correctly translated
+
+* *Over-translations*, when the same source word is translated multiple times
+* *Under-translations*, when some source words are erroneously unstranslated
+* *Mistranslations*, when words are not correctly translated
 
 In this repository we present two new metrics that measure over and under-translations [1].
 
@@ -58,25 +59,6 @@ Notes:
 - The 3 optional flags are necessary to filter stopwords.
 
 #### Auxiliary scripts:
-
-_**Train aligner and obtain source-reference alignments**_:
-
-To train the aligner and obtain the source reference alignments the script train\_aligner.sh might be used as
-
-```
->> ./train_aligner.sh source_language target_language train_source train_target test_source test_target
-```
-
-for example,
-
-```
->> ./train_aligner.sh ro en <PATH>/corpus.ro <PATH>/corpus.en <PATH>/newstest.ro <PATH>/newstest.en
-```
-
-Notes:
-
-- Change the [fast_align](https://github.com/clab/fast_align) path to the path of your local copy of the repository.
-- To replicate the paper results, make sure that the data used is merged (without bpe applied) and the source files include the <SINK> token.
 
 _**Obtain metric values for a single predictions**_:
 
