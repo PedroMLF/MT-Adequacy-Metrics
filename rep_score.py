@@ -123,8 +123,6 @@ def main():
     # Optional arguments
     parser.add_argument("-n", type=int, default=2,
                         help="Provide the value of n-grams to be used")
-    parser.add_argument("--normalize", action='store_true',
-                        help="Define as true to normalize with respect to the number of words on the reference file")
     parser.add_argument("-w1", type=float, default=1.0,
                         help="Provide the value of lambda 1")
     parser.add_argument("-w2", type=float, default=2.0,
@@ -190,17 +188,14 @@ def main():
         bp = 1
 
     # Get the final score
-    if args.normalize:
-        normalize_constant = ref_length
-        if normalize_constant != 0:
-            normalized_value = bp*100*float(total_value)/normalize_constant
-            print("REP_SCORE: {}, BP: {:.3f}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, bp, normalized_value))
-        else:
-            print("The reference file is empty.")
-            exit(0)
-
+    normalize_constant = ref_length
+    if normalize_constant != 0:
+        normalized_value = bp*100*float(total_value)/normalize_constant
+        print("REP_SCORE: {}, BP: {:.2f}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, bp, normalized_value))
     else:
-        print("REP_SCORE: {:.2f}".format(total_value))
+        print("No valid reference file.")
+        exit(0)
+
 
     if args.debug:
         import pdb; pdb.set_trace()
