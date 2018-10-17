@@ -6,7 +6,7 @@ Adequacy issues may have different roots, such as:
 * *Under-translations*, when some source words are erroneously unstranslated
 * *Mistranslations*, when words are not correctly translated
 
-In this repository we present two new metrics that measure over and under-translations [1].
+In this repository we present two metrics that measure over and under-translations [1], updated from the ones presented in [2].
 
 #### REP-score:
 
@@ -103,3 +103,4 @@ Notes:
 **References:**
 
 [1] - tba
+[2] - tba
