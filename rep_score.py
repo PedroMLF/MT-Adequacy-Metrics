@@ -164,11 +164,11 @@ def main():
     if args.n == 2:
         all_consec_scores = [consecutive_words_score(r, n_gram_count_pred_sentence_list) for r in n_gram_count_ref_sentence_list]
         consec_scores = [min(x) for x in zip(*all_consec_scores)]
+    # If n is not the default, then it is necessary to repeat the previous steps with n=2
     else:
-        print("WARNING: Not working properly for multi reference")
-        aux_n_gram_ref_sentence_list = create_ngram_sentence_list(ref_sentence_list, 2)
+        aux_n_gram_ref_sentence_list = [create_ngram_sentence_list(ref, 2) for ref in ref_sentence_list]
         aux_n_gram_pred_sentence_list = create_ngram_sentence_list(pred_sentence_list, 2)
-        aux_n_gram_count_ref_sentence_list = count_repetitions(aux_n_gram_ref_sentence_list, 0)
+        aux_n_gram_count_ref_sentence_list = [count_repetitions(ref, 0) for ref in aux_n_gram_ref_sentence_list]
         aux_n_gram_count_pred_sentence_list = count_repetitions(aux_n_gram_pred_sentence_list, 0)
         consec_scores = consecutive_words_score(aux_n_gram_count_ref_sentence_list, aux_n_gram_count_pred_sentence_list)
 
@@ -195,7 +195,6 @@ def main():
     else:
         print("No valid reference file.")
         exit(0)
-
 
     if args.debug:
         import pdb; pdb.set_trace()
