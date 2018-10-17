@@ -95,17 +95,22 @@ def calculate_final_scores(n_gram_scores, consecutive_scores, w1, w2):
 
 
 def calculate_number_words(references, candidate):
-    """ Returns the number of words from the reference closest to the length of the prediction """
+    """ Returns the number of words from the reference closest to the length of the prediction 
+        and the number of words in the candidate sentence """
+
     # Calculate the number of words for each reference file
     nw_ref = list()
     for ref in references:
         nw_ref.append(sum([len(line.strip('\n').split()) for line in open(ref, 'r').readlines()]))
+
     # Calculate the number of words in the candidate translation
     nw_can = sum([len(line.strip('\n').split()) for line in open(candidate, 'r').readlines()])
+
     # Return the reference length closest to the candidate
     diff_list = [x-nw_can for x in nw_ref]
     min_ix, min_v = min(enumerate(diff_list), key=operator.itemgetter(1))
-    return nw_ref[min_ix]
+
+    return nw_ref[min_ix], nw_can
 
 ################################################################################################
 ###                                     MAIN FUNCTION                                        ###
@@ -161,7 +166,6 @@ def main():
     if args.n == 2:
         all_consec_scores = [consecutive_words_score(r, n_gram_count_pred_sentence_list) for r in n_gram_count_ref_sentence_list]
         consec_scores = [min(x) for x in zip(*all_consec_scores)]
-        #consec_scores = consecutive_words_score(n_gram_count_ref_sentence_list, n_gram_count_pred_sentence_list)
     else:
         print("WARNING: Not working properly for multi reference")
         aux_n_gram_ref_sentence_list = create_ngram_sentence_list(ref_sentence_list, 2)
@@ -177,9 +181,8 @@ def main():
     total_value = sum(repetition_scores)
 
     # Calculate the brevity penalty
-    #ref_length = sum([len(x) for x in ref_sentence_list])
-    ref_length = calculate_number_words(args.reference, args.predicted)
-    pred_length = sum([len(x) for x in pred_sentence_list])
+    ref_length, pred_length = calculate_number_words(args.reference, args.predicted)
+    pred_length_2 = sum([len(x) for x in pred_sentence_list])
     
     if pred_length < ref_length:
         bp = 1/(math.exp(1-(ref_length/pred_length)))
@@ -188,7 +191,7 @@ def main():
 
     # Get the final score
     if args.normalize:
-        normalize_constant = calculate_number_words(args.reference, args.predicted)
+        normalize_constant = ref_length
         if normalize_constant != 0:
             normalized_value = bp*100*float(total_value)/normalize_constant
             print("REP_SCORE: {}, BP: {:.3f}, NORMALIZED_REP_SCORE: {:.2f}".format(total_value, bp, normalized_value))
