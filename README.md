@@ -1,4 +1,11 @@
-# MT-Coverage-Metrics
+# MT-Adequacy-Metrics
+
+Adequacy issues may have different roots, such as:
+    - **Over-translations**, the same source word is translated multiple times
+    - **Under-translations**, some source words are erroneously unstranslated
+    - **Mistranslations**, when words are not correctly translated
+
+In this repository we present two new metrics that measure over and under-translations [1].
 
 #### REP-score:
 
@@ -6,13 +13,12 @@ To obtain the REP-score use the rep\_score.py script.
 
 ```
 >> python3 rep_score.py -r <DATA>/ro-en/newstest.en \
-                        -p <DATA>/merged.prediction.en \
-                        --normalize
+                        -p <DATA>/merged.prediction.en
 ```
 
 Notes:
 
-- The reference (-r) and predicted (-p) files are the **merged** (without bpe applied) files.
+- The reference (-r) and predicted (-p) files are **merged** (without bpe applied) files.
 
 Optional Flags:
 
@@ -23,6 +29,8 @@ Optional Flags:
 > **-w1**, to change the multiplier lambda 1 (default: 1.0)
 
 > **-w2**, to change the multiplier lambda 2 (default: 2.0)
+
+> **--debug**, to create a pdb breakpoint in the end
 
 #### DROP-score:
 
@@ -70,18 +78,18 @@ Notes:
 - Change the [fast_align](https://github.com/clab/fast_align) path to the path of your local copy of the repository.
 - To replicate the paper results, make sure that the data used is merged (without bpe applied) and the source files include the <SINK> token.
 
-_**Obtain coverage metric values for a single predictions**_:
+_**Obtain metric values for a single predictions**_:
 
-To obtain the coverage metrics for a single prediction, use the script run\_coverage\_metrics.sh
+To obtain the values for a single prediction, use the script run\_metrics.sh
 
 ```
->> ./run_coverage_metrics.sh merged_prediction test_target src_ref_align src_mt_align
+>> ./run_single.sh merged_prediction test_target src_ref_align src_mt_align
 ```
 
 for example,
 
 ```
->> ./run_coverage_metrics.sh <PATH>/merged.prediction.en <PATH>/newstest.en <PATH>/src_ref.align <PATH>/src_mt.align
+>> ./run_single.sh <PATH>/merged.prediction.en <PATH>/newstest.en <PATH>/src_ref.align <PATH>/src_mt.align
 ```
 
 Notes:
@@ -89,21 +97,27 @@ Notes:
 - The provided files should be merged (without bpe applied).
 - The alignments are expected to follow [fast_align](https://github.com/clab/fast_align) format.
 
-_**Obtain coverage metric values for several predictions**_:
+_**Obtain metric values for several predictions**_:
 
-To obtain the coverage metrics for a several predictions at once, use the script run\_coverage\_metrics\_several.sh.
+To obtain values for several predictions at once, use the script run\_several.sh.
 
 ```
->> ./run_coverage_metrics_several.sh source_language target_language test_source test_target aligner_data_path mt_predictions_path
+>> ./run_several.sh source_language target_language test_source test_target aligner_data_path mt_predictions_path
 ```
 
 for example.
 
 ```
->> ./run_coverage_metrics_several.sh ro en <PATH>/newstest.ro <PATH>/newstest.en <AlignerDataPath> <MtPredictionsPath>
+>> ./run_several.sh ro en <PATH>/newstest.ro <PATH>/newstest.en <AlignerDataPath> <MtPredictionsPath>
 ```
 
 Notes:
 
 - The predictions files should be merged (without bpe applied).
 - The aligner data file should contain the necessary files (obtained from train\_aligner.sh).
+
+---
+
+**References:**
+
+[1] - tba
